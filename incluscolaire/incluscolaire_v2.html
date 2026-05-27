@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IncluScolaire — Supports adaptés pour tous les élèves</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F1EC;
+  --surface: #FDFCFA;
+  --surface2: #F0EDE7;
+  --border: #E2DDD5;
+  --text: #1C1917;
+  --text2: #78716C;
+  --text3: #A8A29E;
+
+  /* Module colors */
+  --lecture-h:  #166534; --lecture-l:  #DCFCE7; --lecture-m:  #16A34A;
+  --allophones-h: #1E3A5F; --allophones-l: #DBEAFE; --allophones-m: #2563EB;
+  --diff-h:    #7C2D12; --diff-l:    #FEF3C7; --diff-m:    #D97706;
+  --falc-h:    #4C1D95; --falc-l:    #EDE9FE; --falc-m:    #7C3AED;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,.13);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;}
+
+/* ── NAV ── */
+nav{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;backdrop-filter:blur(12px);
+}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.logo-mark{
+  width:36px;height:36px;background:var(--text);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.logo-mark svg{width:18px;height:18px;fill:var(--bg);}
+.logo-wordmark{font-family:'Fraunces',serif;font-size:19px;color:var(--text);letter-spacing:-.3px;}
+.logo-wordmark em{font-style:italic;color:var(--text2);}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.role-btn{
+  font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;
+  border:1.5px solid var(--border);background:transparent;color:var(--text2);
+  cursor:pointer;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.role-btn:hover,.role-btn.on{background:var(--text);border-color:var(--text);color:var(--bg);}
+
+/* ── MAIN ── */
+main{max-width:960px;margin:0 auto;padding:44px 20px 80px;}
+
+
+/* ── HERO ── */
+.hero{margin-bottom:40px;}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:14px;
+}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);line-height:1.15;margin-bottom:12px;letter-spacing:-.5px;}
+.hero h1 em{font-style:italic;color:var(--text2);}
+.hero p{font-size:15px;color:var(--text2);max-width:520px;line-height:1.7;}
+
+/* ── MODULE GRID ── */
+.modules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:32px;}
+.mod-card{
+  background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);
+  padding:22px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden;
+}
+.mod-card::after{
+  content:'';position:absolute;inset:0;background:var(--mc,transparent);
+  opacity:0;transition:opacity .22s;pointer-events:none;
+}
+.mod-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--mc-border,var(--border));}
+.mod-card.active{border-color:var(--mc-border);box-shadow:0 0 0 4px var(--mc-glow);}
+.mod-card[data-m="lecture"] {--mc-border:var(--lecture-m);--mc-glow:rgba(22,163,74,.12);--mc-text:var(--lecture-h);}
+.mod-card[data-m="allophones"]{--mc-border:var(--allophones-m);--mc-glow:rgba(37,99,235,.12);--mc-text:var(--allophones-h);}
+.mod-card[data-m="diff"]    {--mc-border:var(--diff-m);--mc-glow:rgba(217,119,6,.12);--mc-text:var(--diff-h);}
+.mod-card[data-m="falc"]    {--mc-border:var(--falc-m);--mc-glow:rgba(124,58,237,.12);--mc-text:var(--falc-h);}
+
+.mod-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.mod-emoji{font-size:26px;line-height:1;}
+.mod-badge{
+  font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;
+}
+.mod-card[data-m="lecture"]  .mod-badge{background:var(--lecture-l);color:var(--lecture-h);}
+.mod-card[data-m="allophones"].mod-badge,.mod-card[data-m="allophones"] .mod-badge{background:var(--allophones-l);color:var(--allophones-h);}
+.mod-card[data-m="diff"]     .mod-badge{background:var(--diff-l);color:var(--diff-h);}
+.mod-card[data-m="falc"]     .mod-badge{background:var(--falc-l);color:var(--falc-h);}
+.mod-title{font-size:14px;font-weight:700;margin-bottom:5px;color:var(--mc-text,var(--text));}
+.mod-desc{font-size:12px;color:var(--text2);line-height:1.55;}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px;margin-bottom:24px;box-shadow:var(--shadow);display:none;
+}
+.panel.open{display:block;animation:slideIn .2s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.panel-header{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+.panel-emoji{font-size:24px;}
+.panel-title{font-family:'Fraunces',serif;font-size:22px;}
+.panel-sub{font-size:13px;color:var(--text2);margin-bottom:24px;margin-left:0;}
+
+.form-grid{display:grid;gap:14px;margin-bottom:16px;}
+.fg-3{grid-template-columns:repeat(3,1fr);}
+.fg-2{grid-template-columns:repeat(2,1fr);}
+.fg-1{grid-template-columns:1fr;}
+label.lbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2);margin-bottom:6px;}
+.field select,.field input[type=text]{
+  width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;background:var(--bg);color:var(--text);
+  outline:none;transition:border-color .15s;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2378716C' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+}
+.field input[type=text]{background-image:none;padding-right:13px;}
+.field select:focus,.field input[type=text]:focus{border-color:var(--text);}
+
+/* checkboxes */
+.checks-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.chk-label{
+  display:flex;align-items:center;gap:7px;padding:7px 12px;border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;
+  transition:all .15s;background:var(--bg);
+}
+.chk-label:hover{border-color:var(--text);}
+.chk-label input{display:none;}
+.chk-label.checked{background:var(--text);border-color:var(--text);color:var(--bg);}
+
+/* upload */
+.upload-zone{
+  border:2px dashed var(--border);border-radius:var(--radius);padding:36px 20px;
+  text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);
+  position:relative;margin-bottom:16px;
+}
+.upload-zone:hover,.upload-zone.over{border-color:var(--text);background:var(--surface2);}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:30px;margin-bottom:8px;}
+.upload-txt{font-size:14px;font-weight:600;margin-bottom:4px;}
+.upload-sub{font-size:12px;color:var(--text2);}
+.preview-img{max-width:100%;max-height:220px;border-radius:10px;margin:14px auto 0;display:block;object-fit:contain;}
+
+/* btn primary */
+.btn-run{
+  width:100%;padding:14px;border:none;border-radius:var(--radius-sm);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;
+  color:white;
+}
+.btn-run[data-c="lecture"]  {background:var(--lecture-m);}
+.btn-run[data-c="allophones"]{background:var(--allophones-m);}
+.btn-run[data-c="diff"]     {background:var(--diff-m);}
+.btn-run[data-c="falc"]     {background:var(--falc-m);}
+.btn-run:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.2);}
+.btn-run:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;filter:none;}
+.spin{width:17px;height:17px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:rot .65s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg);}}
+
+/* error */
+.err-box{background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px 16px;color:#991B1B;font-size:13px;margin-top:12px;}
+
+/* ── RESULTS ── */
+.results{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px;box-shadow:var(--shadow);display:none;
+}
+.results.open{display:block;animation:slideIn .25s ease;}
+.res-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+.res-header h2{font-family:'Fraunces',serif;font-size:20px;}
+.res-actions{display:flex;gap:8px;}
+.btn-sm{
+  font-size:12px;font-weight:600;padding:7px 13px;border-radius:8px;
+  border:1.5px solid var(--border);background:transparent;cursor:pointer;
+  transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.btn-sm:hover{background:var(--surface2);}
+.btn-print{background:var(--surface2);}
+
+/* TABS */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;}
+.tab{
+  padding:7px 15px;border-radius:20px;font-size:13px;font-weight:600;
+  border:1.5px solid transparent;cursor:pointer;transition:all .15s;
+  background:transparent;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text2);
+}
+.tab.on{color:var(--tab-col,var(--text));background:var(--tab-bg,var(--surface2));border-color:var(--tab-col,var(--border));}
+
+.pane{display:none;}
+.pane.on{display:block;}
+
+/* content atoms */
+.section-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:10px;}
+
+/* table */
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table th{text-align:left;padding:9px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--border);color:var(--text2);background:var(--surface2);}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55;}
+.data-table tr:hover td{background:var(--bg);}
+.word-em{font-weight:700;color:var(--text);}
+.badge-nat{font-size:10px;font-weight:700;background:var(--surface2);color:var(--text2);padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.transl{font-style:italic;color:var(--text2);}
+
+/* card blocks */
+.card-block{border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:14px;background:var(--bg);}
+.card-block h3{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text);}
+.card-block p,.card-block li{font-size:14px;line-height:1.7;color:var(--text);}
+.card-block ul{padding-left:18px;}
+
+/* diff versions */
+.diff-version{border-radius:var(--radius-sm);padding:18px 20px;margin-bottom:16px;border-left:4px solid;}
+.diff-soutien{background:#FEF3C7;border-color:var(--diff-m);}
+.diff-standard{background:#F0FDF4;border-color:var(--lecture-m);}
+.diff-expert{background:#EDE9FE;border-color:var(--falc-m);}
+.diff-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.diff-soutien .diff-tag{color:var(--diff-h);}
+.diff-standard .diff-tag{color:var(--lecture-h);}
+.diff-expert .diff-tag{color:var(--falc-h);}
+.diff-version p,.diff-version li{font-size:13px;line-height:1.65;}
+.diff-version ul{padding-left:16px;margin-top:6px;}
+
+/* falc */
+.falc-block{background:var(--falc-l);border-radius:var(--radius-sm);padding:18px 20px;margin-bottom:14px;}
+.falc-block p{font-size:16px;line-height:2;font-weight:500;}
+.simpli-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;}
+.simpli-table th{background:var(--falc-l);color:var(--falc-h);padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;border-bottom:2px solid var(--border);}
+.simpli-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;}
+.del-txt{color:#991B1B;text-decoration:line-through;}
+.add-txt{color:var(--lecture-h);font-weight:600;}
+
+/* resume blocks */
+.para-block{border-left:3px solid var(--lecture-m);padding:14px 16px;background:var(--bg);border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-bottom:12px;}
+.para-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--lecture-m);margin-bottom:5px;}
+.para-txt{font-size:14px;line-height:1.7;}
+
+/* loading */
+.loading{text-align:center;padding:52px 20px;}
+.loading .big-spin{width:42px;height:42px;border:3px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:rot .8s linear infinite;margin:0 auto 16px;}
+.loading strong{display:block;font-size:15px;margin-bottom:6px;}
+.loading p{font-size:13px;color:var(--text2);}
+
+@media(max-width:620px){
+  .modules-grid,.fg-3,.fg-2{grid-template-columns:1fr;}
+  nav{padding:0 16px;}
+  .panel,.results{padding:20px;}
+}
+@media print{
+  nav,.api-banner,.modules-grid,.panel,.tabs,.res-actions{display:none!important;}
+  .results{box-shadow:none;border:none;padding:0;}
+  .pane{display:block!important;}
+  body{background:white;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M12 3C7 3 3 7 3 12s4 9 9 9 9-4 9-9-4-9-9-9zm-1.5 13V8l7 4-7 4z"/></svg>
+    </div>
+    <span class="logo-wordmark">Inclu<em>Scolaire</em></span>
+  </a>
+  <div class="nav-right">
+    <button class="role-btn on">Enseignant</button>
+    <button class="role-btn">Élève</button>
+    <button class="role-btn">Parent</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">
+      <span>✦</span> Application pédagogique inclusive
+    </div>
+    <h1>Des supports adaptés<br><em>pour chaque élève</em></h1>
+    <p>Quatre modules alimentés par l'IA pour rendre vos documents accessibles — selon les principes de la CUA, du CECRL et des recommandations Cnesco.</p>
+  </div>
+
+  <!-- MODULES -->
+  <div class="modules-grid">
+
+    <div class="mod-card" data-m="lecture" onclick="openModule('lecture')">
+      <div class="mod-top">
+        <span class="mod-emoji">📖</span>
+        <span class="mod-badge">Disponible</span>
+      </div>
+      <div class="mod-title">Aide à la lecture</div>
+      <div class="mod-desc">Lexique des mots difficiles (Tier 2 & 3) et résumé paragraphe par paragraphe. Traduction si langue maternelle précisée.</div>
+    </div>
+
+    <div class="mod-card" data-m="allophones" onclick="openModule('allophones')">
+      <div class="mod-top">
+        <span class="mod-emoji">🌍</span>
+        <span class="mod-badge" style="background:var(--allophones-l);color:var(--allophones-h)">Disponible</span>
+      </div>
+      <div class="mod-title">Support multimodal — Allophones</div>
+      <div class="mod-desc">Adaptation calibrée sur le niveau CECRL, lexique bilingue, phrases modèles et suggestions visuelles pour les EANA.</div>
+    </div>
+
+    <div class="mod-card" data-m="diff" onclick="openModule('diff')">
+      <div class="mod-top">
+        <span class="mod-emoji">🎯</span>
+        <span class="mod-badge" style="background:var(--diff-l);color:var(--diff-h)">Disponible</span>
+      </div>
+      <div class="mod-title">Différentiation des consignes</div>
+      <div class="mod-desc">3 versions de la consigne (soutien / standard / expert) avec le même objectif d'apprentissage, selon Tomlinson & Cnesco 2017.</div>
+    </div>
+
+    <div class="mod-card" data-m="falc" onclick="openModule('falc')">
+      <div class="mod-top">
+        <span class="mod-emoji">✨</span>
+        <span class="mod-badge" style="background:var(--falc-l);color:var(--falc-h)">Disponible</span>
+      </div>
+      <div class="mod-title">FALC — Facile à lire et à comprendre</div>
+      <div class="mod-desc">Réécriture selon les règles Inclusion Europe (2009) et la norme NF EN 17161, avec tableau des simplifications.</div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PANEL : LECTURE
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-lecture">
+    <div class="panel-header"><span class="panel-emoji">📖</span><h2 class="panel-title">Aide à la lecture — Lexique &amp; Résumé</h2></div>
+    <p class="panel-sub">Renseignez le contexte puis importez une photo du document. L'IA produit le lexique des mots difficiles et un résumé par paragraphe.</p>
+    <div class="form-grid fg-3">
+      <div class="field"><label class="lbl">Discipline</label><select id="l-discipline"><option value="">Choisir…</option><option>Histoire-Géographie</option><option>Français</option><option>SVT</option><option>Sciences Physiques</option><option>Mathématiques</option><option>EMC</option><option>Anglais</option><option>Autre</option></select></div>
+      <div class="field"><label class="lbl">Niveau de classe</label><select id="l-niveau"><option value="">Choisir…</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option><option>6e</option><option>5e</option><option>4e</option><option>3e</option><option>2nde</option><option>1re</option><option>Terminale</option></select></div>
+      <div class="field"><label class="lbl">Langue maternelle</label><select id="l-langue"><option value="français">Français (pas de traduction)</option><option value="arabe">Arabe</option><option value="turc">Turc</option><option value="portugais">Portugais</option><option value="espagnol">Espagnol</option><option value="anglais">Anglais</option><option value="tamoul">Tamoul</option><option value="wolof">Wolof</option><option value="chinois">Chinois</option><option value="dari">Dari</option><option value="ukrainien">Ukrainien</option><option value="roumain">Roumain</option></select></div>
+    </div>
+    <div class="form-grid fg-1">
+      <div class="field"><label class="lbl">Objectif de lecture (optionnel)</label><input type="text" id="l-objectif" placeholder="Ex : identifier les causes de l'exode rural"></div>
+    </div>
+    <div class="upload-zone" id="uz-lecture">
+      <input type="file" accept="image/*" onchange="handleImg(this,'lecture')">
+      <div class="upload-icon">📸</div>
+      <div class="upload-txt">Déposez une photo ou cliquez pour importer</div>
+      <div class="upload-sub">JPG, PNG — photo du document, manuel ou fiche</div>
+      <img class="preview-img" id="prev-lecture" style="display:none">
+    </div>
+    <button class="btn-run" data-c="lecture" id="btn-lecture" onclick="run('lecture')">✨ Analyser le document</button>
+    <div id="err-lecture"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PANEL : ALLOPHONES
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-allophones">
+    <div class="panel-header"><span class="panel-emoji">🌍</span><h2 class="panel-title">Support multimodal — Élèves allophones (EANA)</h2></div>
+    <p class="panel-sub">Adaptez une activité pour un élève nouvellement arrivé en précisant son niveau CECRL et sa langue maternelle.</p>
+    <div class="form-grid fg-3">
+      <div class="field"><label class="lbl">Discipline</label><select id="a-discipline"><option value="">Choisir…</option><option>Histoire-Géographie</option><option>Français / FLS</option><option>SVT</option><option>Sciences Physiques</option><option>Mathématiques</option><option>EMC</option><option>Anglais</option><option>Autre</option></select></div>
+      <div class="field"><label class="lbl">Niveau de classe</label><select id="a-niveau"><option value="">Choisir…</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option><option>6e</option><option>5e</option><option>4e</option><option>3e</option><option>2nde</option><option>1re</option><option>Terminale</option></select></div>
+      <div class="field"><label class="lbl">Niveau CECRL</label><select id="a-cecrl"><option value="">Choisir…</option><option value="A1">A1 — Débutant</option><option value="A2">A2 — Élémentaire</option><option value="B1">B1 — Intermédiaire</option></select></div>
+    </div>
+    <div class="form-grid fg-2">
+      <div class="field"><label class="lbl">Langue maternelle</label><select id="a-langue"><option value="non précisée">Non précisée</option><option value="arabe">Arabe</option><option value="turc">Turc</option><option value="portugais">Portugais</option><option value="espagnol">Espagnol</option><option value="anglais">Anglais</option><option value="tamoul">Tamoul</option><option value="wolof">Wolof</option><option value="chinois">Chinois</option><option value="dari">Dari</option><option value="ukrainien">Ukrainien</option><option value="roumain">Roumain</option></select></div>
+      <div class="field"><label class="lbl">Supports souhaités</label>
+        <div class="checks-group" id="a-supports">
+          <label class="chk-label checked"><input type="checkbox" value="lexique bilingue" checked onchange="toggleChk(this)">📚 Lexique bilingue</label>
+          <label class="chk-label checked"><input type="checkbox" value="phrases modèles à trous" checked onchange="toggleChk(this)">📝 Phrases modèles</label>
+          <label class="chk-label checked"><input type="checkbox" value="suggestions visuelles" checked onchange="toggleChk(this)">🖼️ Visuels</label>
+          <label class="chk-label checked"><input type="checkbox" value="modalités de travail" checked onchange="toggleChk(this)">👥 Modalités</label>
+        </div>
+      </div>
+    </div>
+    <div class="upload-zone" id="uz-allophones">
+      <input type="file" accept="image/*" onchange="handleImg(this,'allophones')">
+      <div class="upload-icon">📸</div>
+      <div class="upload-txt">Photo de l'activité ou du document à adapter</div>
+      <div class="upload-sub">JPG, PNG</div>
+      <img class="preview-img" id="prev-allophones" style="display:none">
+    </div>
+    <button class="btn-run" data-c="allophones" id="btn-allophones" onclick="run('allophones')">🌍 Adapter l'activité</button>
+    <div id="err-allophones"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PANEL : DIFF
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-diff">
+    <div class="panel-header"><span class="panel-emoji">🎯</span><h2 class="panel-title">Différentiation des consignes</h2></div>
+    <p class="panel-sub">L'IA génère 3 versions de votre consigne (soutien / standard / expert) visant le même objectif d'apprentissage.</p>
+    <div class="form-grid fg-3">
+      <div class="field"><label class="lbl">Discipline</label><select id="d-discipline"><option value="">Choisir…</option><option>Histoire-Géographie</option><option>Français</option><option>SVT</option><option>Sciences Physiques</option><option>Mathématiques</option><option>EMC</option><option>Anglais</option><option>Autre</option></select></div>
+      <div class="field"><label class="lbl">Niveau de classe</label><select id="d-niveau"><option value="">Choisir…</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option><option>6e</option><option>5e</option><option>4e</option><option>3e</option><option>2nde</option><option>1re</option><option>Terminale</option></select></div>
+      <div class="field"><label class="lbl">Objectif d'apprentissage</label><input type="text" id="d-objectif" placeholder="Ex : identifier les acteurs d'un paysage"></div>
+    </div>
+    <div class="upload-zone" id="uz-diff">
+      <input type="file" accept="image/*" onchange="handleImg(this,'diff')">
+      <div class="upload-icon">📸</div>
+      <div class="upload-txt">Photo de la consigne originale à différencier</div>
+      <div class="upload-sub">JPG, PNG</div>
+      <img class="preview-img" id="prev-diff" style="display:none">
+    </div>
+    <button class="btn-run" data-c="diff" id="btn-diff" onclick="run('diff')">🎯 Générer les 3 versions</button>
+    <div id="err-diff"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       PANEL : FALC
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-falc">
+    <div class="panel-header"><span class="panel-emoji">✨</span><h2 class="panel-title">FALC — Facile à lire et à comprendre</h2></div>
+    <p class="panel-sub">Réécriture du document selon les règles Inclusion Europe (2009) adaptée au profil de l'élève.</p>
+    <div class="form-grid fg-3">
+      <div class="field"><label class="lbl">Discipline</label><select id="f-discipline"><option value="">Choisir…</option><option>Histoire-Géographie</option><option>Français</option><option>SVT</option><option>Sciences Physiques</option><option>Mathématiques</option><option>EMC</option><option>Anglais</option><option>Autre</option></select></div>
+      <div class="field"><label class="lbl">Niveau de classe</label><select id="f-niveau"><option value="">Choisir…</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option><option>6e</option><option>5e</option><option>4e</option><option>3e</option><option>2nde</option><option>1re</option><option>Terminale</option></select></div>
+      <div class="field"><label class="lbl">Profil de l'élève</label><select id="f-profil"><option value="élève avec difficultés de lecture sévères">Difficultés de lecture sévères</option><option value="élève avec déficience intellectuelle légère">Déficience intellectuelle légère</option><option value="élève avec TSA (autisme)">TSA — Autisme</option><option value="élève avec dyslexie sévère">Dyslexie sévère</option><option value="élève en situation de handicap cognitif">Handicap cognitif général</option></select></div>
+    </div>
+    <div class="upload-zone" id="uz-falc">
+      <input type="file" accept="image/*" onchange="handleImg(this,'falc')">
+      <div class="upload-icon">📸</div>
+      <div class="upload-txt">Photo du document à adapter en FALC</div>
+      <div class="upload-sub">JPG, PNG</div>
+      <img class="preview-img" id="prev-falc" style="display:none">
+    </div>
+    <button class="btn-run" data-c="falc" id="btn-falc" onclick="run('falc')">✨ Adapter en FALC</button>
+    <div id="err-falc"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       RESULTS
+  ═══════════════════════════════════════ -->
+  <div class="results" id="results">
+    <div class="res-header">
+      <h2 id="res-title">📋 Résultats</h2>
+      <div class="res-actions">
+        <button class="btn-sm btn-print" onclick="window.print()">🖨️ Imprimer</button>
+        <button class="btn-sm" onclick="copyResults()">📋 Copier</button>
+      </div>
+    </div>
+    <div class="tabs" id="res-tabs"></div>
+    <div id="res-panes"></div>
+  </div>
+
+</main>
+
+<script>
+// ── STATE ──
+const imgs = {};   // module -> { base64, type }
+
+// ── ROLES ──
+document.querySelectorAll('.role-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.role-btn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+}));
+
+// ── OPEN MODULE ──
+function openModule(m){
+  document.querySelectorAll('.mod-card').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.mod-card[data-m="${m}"]`).classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'));
+  document.getElementById('results').classList.remove('open');
+  const panel=document.getElementById('panel-'+m);
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ── UPLOAD ──
+function handleImg(input,mod){
+  const f=input.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    imgs[mod]={base64:e.target.result.split(',')[1],type:f.type};
+    const prev=document.getElementById('prev-'+mod);
+    prev.src=e.target.result; prev.style.display='block';
+  };
+  reader.readAsDataURL(f);
+}
+
+// drag & drop for each upload zone
+document.querySelectorAll('.upload-zone').forEach(z=>{
+  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over');});
+  z.addEventListener('dragleave',()=>z.classList.remove('over'));
+  z.addEventListener('drop',e=>{
+    e.preventDefault(); z.classList.remove('over');
+    const f=e.dataTransfer.files[0];
+    if(f&&f.type.startsWith('image/')){
+      const input=z.querySelector('input[type=file]');
+      const dt=new DataTransfer(); dt.items.add(f); input.files=dt.files;
+      const mod=z.id.replace('uz-','');
+      handleImg(input,mod);
+    }
+  });
+});
+
+// ── CHECKBOXES ──
+function toggleChk(input){input.parentElement.classList.toggle('checked',input.checked);}
+
+// ── VALIDATE ──
+function validate(fields, errId){
+  const err=document.getElementById(errId); err.innerHTML='';
+  for(const [val,msg] of fields){
+    if(!val){err.innerHTML=`<div class="err-box">⚠️ ${msg}</div>`;return false;}
+  }
+  return true;
+}
+
+// ── SET BTN STATE ──
+function setBtnState(id, loading){
+  const btn=document.getElementById('btn-'+id);
+  btn.disabled=loading;
+  if(loading) btn.innerHTML='<div class="spin"></div> Analyse en cours…';
+  else btn.innerHTML={
+    lecture:'✨ Analyser un nouveau document',
+    allophones:'🌍 Adapter l\'activité',
+    diff:'🎯 Générer les 3 versions',
+    falc:'✨ Adapter en FALC'
+  }[id];
+}
+
+// ── SHOW LOADING ──
+function showLoading(label){
+  const r=document.getElementById('results');
+  r.classList.add('open');
+  document.getElementById('res-tabs').innerHTML='';
+  document.getElementById('res-panes').innerHTML=`<div class="loading"><div class="big-spin"></div><strong>${label}</strong><p>L'IA analyse le document…</p></div>`;
+  r.scrollIntoView({behavior:'smooth'});
+}
+
+// ── API CALL ──
+async function callAPI(system, userText, imgMod){
+  const imgData=imgs[imgMod];
+  const messages=[{
+    role:'user',
+    content:[
+      {type:'image',source:{type:'base64',media_type:imgData.type,data:imgData.base64}},
+      {type:'text',text:userText}
+    ]
+  }];
+  const resp=await fetch('/api/claude',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system,messages})
+  });
+  const data=await resp.json();
+  if(data.error) throw new Error(data.error.message);
+  const text=data.content.map(b=>b.text||'').join('');
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
+}
+
+// ═══════════════════════════════════════
+// RUN DISPATCHER
+// ═══════════════════════════════════════
+async function run(mod){
+  if(!imgs[mod]){
+    document.getElementById('err-'+mod).innerHTML='<div class="err-box">⚠️ Importez une photo du document.</div>';
+    return;
+  }
+  try{
+    if(mod==='lecture')    await runLecture();
+    if(mod==='allophones') await runAllophones();
+    if(mod==='diff')       await runDiff();
+    if(mod==='falc')       await runFalc();
+  }catch(e){
+    document.getElementById('err-'+mod).innerHTML=`<div class="err-box">❌ ${e.message}</div>`;
+    document.getElementById('results').classList.remove('open');
+    setBtnState(mod,false);
+  }
+}
+
+// ═══════════════════════════════════════
+// MODULE 1 — LECTURE
+// ═══════════════════════════════════════
+async function runLecture(){
+  const disc=document.getElementById('l-discipline').value;
+  const niv=document.getElementById('l-niveau').value;
+  const lng=document.getElementById('l-langue').value;
+  const obj=document.getElementById('l-objectif').value||`comprendre le texte en ${disc}`;
+  if(!validate([[disc,'Choisissez une discipline.'],[niv,'Choisissez un niveau.']],'err-lecture')) return;
+
+  setBtnState('lecture',true);
+  showLoading('Identification du vocabulaire et résumé…');
+
+  const hasTrad=lng!=='français';
+  const sys=`Tu es un enseignant spécialisé en compréhension de l'écrit (Cain & Oakhill 2007, Biemiller 2003, Cnesco 2016, CUA CAST 2018).
+Réponds UNIQUEMENT en JSON valide sans markdown.
+Format : {"lexique":[{"mot":"","nature":"","definition":"","exemple":"","traduction":""}],"resume":[{"paragraphe":1,"texte":""}]}`;
+
+  const user=`Texte de ${disc}, niveau ${niv}. Objectif : ${obj}. Langue maternelle : ${lng}.
+1. Lexique des mots difficiles (Tier 2 & 3, Beck et al.) par ordre d'apparition : mot, nature grammaticale, définition accessible niveau ${niv}, exemple dans une phrase différente du texte.${hasTrad?` Ajouter une traduction en ${lng} (écriture native).`:" Laisser traduction vide."}
+2. Résumé de 1-2 phrases par paragraphe, langage accessible niveau ${niv}, structure argumentative conservée. Ne jamais modifier le texte source.`;
+
+  const d=await callAPI(sys,user,'lecture');
+
+  const tabs=[{id:'lexique',label:'📚 Lexique'},{id:'resume',label:'📝 Résumé'}];
+  const tabColor='--lecture-m';
+  renderTabs(tabs,tabColor);
+  document.getElementById('res-title').textContent='📖 Aide à la lecture';
+
+  // lexique pane
+  const hasTr=hasTrad;
+  let lx=`<table class="data-table"><thead><tr><th>Mot</th><th>Nature</th><th>Définition</th><th>Exemple</th>${hasTr?`<th>En ${lng}</th>`:''}</tr></thead><tbody>`;
+  (d.lexique||[]).forEach(r=>{
+    lx+=`<tr><td class="word-em">${r.mot}</td><td><span class="badge-nat">${r.nature}</span></td><td>${r.definition}</td><td class="transl">${r.exemple}</td>${hasTr?`<td class="transl">${r.traduction}</td>`:''}</tr>`;
+  });
+  lx+='</tbody></table>';
+
+  let rs='';
+  (d.resume||[]).forEach(r=>{
+    rs+=`<div class="para-block"><div class="para-lbl">Paragraphe ${r.paragraphe}</div><div class="para-txt">${r.texte}</div></div>`;
+  });
+
+  setPanes([{id:'lexique',html:lx},{id:'resume',html:rs}]);
+  setBtnState('lecture',false);
+}
+
+// ═══════════════════════════════════════
+// MODULE 2 — ALLOPHONES
+// ═══════════════════════════════════════
+async function runAllophones(){
+  const disc=document.getElementById('a-discipline').value;
+  const niv=document.getElementById('a-niveau').value;
+  const cecrl=document.getElementById('a-cecrl').value;
+  const lng=document.getElementById('a-langue').value;
+  const supports=[...document.querySelectorAll('#a-supports input:checked')].map(i=>i.value).join(', ');
+  if(!validate([[disc,'Choisissez une discipline.'],[niv,'Choisissez un niveau.'],[cecrl,'Choisissez un niveau CECRL.']],'err-allophones')) return;
+
+  setBtnState('allophones',true);
+  showLoading('Adaptation de l\'activité pour l\'élève allophone…');
+
+  const sys=`Tu es un enseignant spécialisé en FLE/FLS et inclusion linguistique (CECRL, CASNAV/Éduscol, circulaire 2012-141).
+Réponds UNIQUEMENT en JSON valide sans markdown.
+Format : {
+  "activite_adaptee": {"consignes": ["..."], "etapes": ["..."]},
+  "lexique": [{"fr":"","traduction":"","exemple":""}],
+  "phrases_modeles": ["..."],
+  "visuels": ["..."],
+  "modalites": ["..."]
+}`;
+
+  const user=`Discipline : ${disc}, classe : ${niv}, niveau CECRL : ${cecrl}, langue maternelle : ${lng}.
+Supports souhaités : ${supports}.
+Adapte l'activité visible dans l'image pour un EANA en :
+- Calibrant la langue sur le niveau ${cecrl} (${cecrl==='A1'?'mots isolés et phrases très simples':cecrl==='A2'?'phrases courtes et situations familières':'textes simples et cohérents'})
+- Produisant des consignes courtes et explicites avec exemples
+- ${lng!=='non précisée'?`Un lexique disciplinaire bilingue français ↔ ${lng} avec exemples en français`:'Un lexique disciplinaire simplifié en français'}
+- Des phrases modèles à trous pour structurer les réponses
+- Des suggestions de visuels à créer ou trouver
+- Des modalités de travail favorisant l'interaction avec les pairs
+Conserver l'objectif d'apprentissage disciplinaire de l'activité originale.`;
+
+  const d=await callAPI(sys,user,'allophones');
+  document.getElementById('res-title').textContent='🌍 Support multimodal — Allophones';
+
+  const tabs=[{id:'activite',label:'📋 Activité adaptée'},{id:'lexique',label:'📚 Lexique bilingue'},{id:'modeles',label:'📝 Phrases modèles'},{id:'visuels',label:'🖼️ Visuels & modalités'}];
+  renderTabs(tabs,'--allophones-m');
+
+  // Activité
+  let act='<div class="section-lbl">Consignes simplifiées</div>';
+  (d.activite_adaptee?.consignes||[]).forEach((c,i)=>{act+=`<div class="card-block"><h3>Consigne ${i+1}</h3><p>${c}</p></div>`;});
+  if((d.activite_adaptee?.etapes||[]).length){
+    act+='<div class="section-lbl" style="margin-top:16px">Étapes intermédiaires</div>';
+    act+='<div class="card-block"><ul>';
+    d.activite_adaptee.etapes.forEach(e=>{act+=`<li>${e}</li>`;});
+    act+='</ul></div>';
+  }
+
+  // Lexique
+  const hasTr=lng!=='non précisée';
+  let lx=`<table class="data-table"><thead><tr><th>Mot français</th>${hasTr?`<th>En ${lng}</th>`:''}<th>Exemple en français</th></tr></thead><tbody>`;
+  (d.lexique||[]).forEach(r=>{lx+=`<tr><td class="word-em">${r.fr}</td>${hasTr?`<td class="transl">${r.traduction}</td>`:''}<td class="transl">${r.exemple}</td></tr>`;});
+  lx+='</tbody></table>';
+
+  // Phrases modèles
+  let pm='<div class="section-lbl">Phrases à compléter</div>';
+  (d.phrases_modeles||[]).forEach(p=>{pm+=`<div class="card-block"><p>${p}</p></div>`;});
+
+  // Visuels & modalités
+  let vm='<div class="section-lbl">Suggestions de supports visuels</div><div class="card-block"><ul>';
+  (d.visuels||[]).forEach(v=>{vm+=`<li>${v}</li>`;});
+  vm+='</ul></div>';
+  if((d.modalites||[]).length){
+    vm+='<div class="section-lbl" style="margin-top:14px">Modalités de travail recommandées</div><div class="card-block"><ul>';
+    d.modalites.forEach(m=>{vm+=`<li>${m}</li>`;});
+    vm+='</ul></div>';
+  }
+
+  setPanes([{id:'activite',html:act},{id:'lexique',html:lx},{id:'modeles',html:pm},{id:'visuels',html:vm}]);
+  setBtnState('allophones',false);
+}
+
+// ═══════════════════════════════════════
+// MODULE 3 — DIFF
+// ═══════════════════════════════════════
+async function runDiff(){
+  const disc=document.getElementById('d-discipline').value;
+  const niv=document.getElementById('d-niveau').value;
+  const obj=document.getElementById('d-objectif').value;
+  if(!validate([[disc,'Choisissez une discipline.'],[niv,'Choisissez un niveau.'],[obj,'Précisez l\'objectif d\'apprentissage.']],'err-diff')) return;
+
+  setBtnState('diff',true);
+  showLoading('Génération des 3 versions différenciées…');
+
+  const sys=`Tu es un enseignant expert en pédagogie différenciée (Cnesco/Ifé 2017, Tomlinson).
+Réponds UNIQUEMENT en JSON valide sans markdown.
+Format : {
+  "soutien":  {"consigne":"","amenagements":[""],"criteres":[""]},
+  "standard": {"consigne":"","amenagements":[""],"criteres":[""]},
+  "expert":   {"consigne":"","amenagements":[""],"criteres":[""]}
+}`;
+
+  const user=`Discipline : ${disc}, niveau : ${niv}. Objectif d'apprentissage : ${obj}.
+Analyse la consigne visible dans l'image et génère 3 versions qui visent le MÊME objectif d'apprentissage du socle commun :
+- Version SOUTIEN : étapes guidées, vocabulaire simplifié, amorces, supports visuels décrits
+- Version STANDARD : consigne claire et complète sans étayage supplémentaire
+- Version EXPERT : défi cognitif supérieur, contrainte supplémentaire, ouverture ou approfondissement
+Pour chaque version : la consigne reformulée, les aménagements spécifiques, les critères de réussite.
+Ne jamais créer de groupes de niveaux figés (Cnesco 2017). La différenciation porte sur le chemin, pas la destination.`;
+
+  const d=await callAPI(sys,user,'diff');
+  document.getElementById('res-title').textContent='🎯 Consignes différenciées';
+
+  renderTabs([{id:'versions',label:'📋 3 versions'}],'--diff-m');
+
+  const versions=[
+    {key:'soutien',label:'🟡 Version Soutien',cls:'diff-soutien'},
+    {key:'standard',label:'🟢 Version Standard',cls:'diff-standard'},
+    {key:'expert',label:'🟣 Version Expert',cls:'diff-expert'},
+  ];
+  let html='';
+  versions.forEach(v=>{
+    const vd=d[v.key]||{};
+    html+=`<div class="diff-version ${v.cls}">
+      <div class="diff-tag">${v.label}</div>
+      <p style="font-weight:600;margin-bottom:10px">${vd.consigne||''}</p>`;
+    if((vd.amenagements||[]).length){
+      html+=`<p style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text2);margin-bottom:4px">Aménagements</p><ul>`;
+      vd.amenagements.forEach(a=>{html+=`<li>${a}</li>`;});
+      html+='</ul>';
+    }
+    if((vd.criteres||[]).length){
+      html+=`<p style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text2);margin:8px 0 4px">Critères de réussite</p><ul>`;
+      vd.criteres.forEach(c=>{html+=`<li>${c}</li>`;});
+      html+='</ul>';
+    }
+    html+='</div>';
+  });
+
+  setPanes([{id:'versions',html}]);
+  setBtnState('diff',false);
+}
+
+// ═══════════════════════════════════════
+// MODULE 4 — FALC
+// ═══════════════════════════════════════
+async function runFalc(){
+  const disc=document.getElementById('f-discipline').value;
+  const niv=document.getElementById('f-niveau').value;
+  const prof=document.getElementById('f-profil').value;
+  if(!validate([[disc,'Choisissez une discipline.'],[niv,'Choisissez un niveau.']],'err-falc')) return;
+
+  setBtnState('falc',true);
+  showLoading('Réécriture du texte en FALC…');
+
+  const sys=`Tu es un enseignant spécialisé en FALC (Inclusion Europe 2009, NF EN 17161:2019).
+Réponds UNIQUEMENT en JSON valide sans markdown.
+Format : {
+  "texte_falc": ["phrase1","phrase2",...],
+  "simplifications": [{"original":"","simplifie":"","justification":""}],
+  "pictogrammes": ["..."]
+}`;
+
+  const user=`Discipline : ${disc}, niveau : ${niv}. Profil : ${prof}.
+Réécris le texte visible dans l'image en FALC en respectant :
+- Phrases courtes (max 15 mots), une seule idée par phrase
+- Vocabulaire simple, courant, concret — pas d'abstraction
+- Voix active, tournures affirmatives, pas de doubles négations
+- Titres explicites et listes à puces si pertinent
+- Si mot difficile indispensable : l'expliquer immédiatement entre parenthèses
+- Indiquer en fin les informations supprimées ou simplifiées et la justification
+- Proposer des suggestions de pictogrammes ou illustrations
+Adapter au profil : ${prof}.`;
+
+  const d=await callAPI(sys,user,'falc');
+  document.getElementById('res-title').textContent='✨ Texte FALC';
+
+  renderTabs([{id:'texte',label:'✨ Texte FALC'},{id:'tableau',label:'📊 Simplifications'},{id:'pictos',label:'🖼️ Pictogrammes'}],'--falc-m');
+
+  // Texte
+  let tx='<div class="falc-block">';
+  (d.texte_falc||[]).forEach(p=>{tx+=`<p>→ ${p}</p>`;});
+  tx+='</div>';
+
+  // Simplifications
+  let tb=`<table class="simpli-table"><thead><tr><th>Texte original</th><th>Version FALC</th><th>Justification</th></tr></thead><tbody>`;
+  (d.simplifications||[]).forEach(r=>{
+    tb+=`<tr><td class="del-txt">${r.original}</td><td class="add-txt">${r.simplifie}</td><td style="color:var(--text2)">${r.justification}</td></tr>`;
+  });
+  tb+='</tbody></table>';
+
+  // Pictogrammes
+  let pc='<div class="section-lbl">Suggestions d\'illustrations ou de pictogrammes</div><div class="card-block"><ul>';
+  (d.pictogrammes||[]).forEach(p=>{pc+=`<li>${p}</li>`;});
+  pc+='</ul></div>';
+  pc+=`<div class="card-block" style="margin-top:12px"><p style="font-size:13px;color:var(--text2)">💡 Ressources recommandées : <a href="https://www.arasaac.org" target="_blank" style="color:var(--falc-m)">ARASAAC</a>, <a href="https://www.sclera.be" target="_blank" style="color:var(--falc-m)">Sclera</a>, <a href="https://www.falc-france.fr" target="_blank" style="color:var(--falc-m)">FALC France</a></p></div>`;
+
+  setPanes([{id:'texte',html:tx},{id:'tableau',html:tb},{id:'pictos',html:pc}]);
+  setBtnState('falc',false);
+}
+
+// ═══════════════════════════════════════
+// TABS & PANES
+// ═══════════════════════════════════════
+let currentTabColor='--lecture-m';
+
+function renderTabs(tabs, colorVar){
+  currentTabColor=colorVar;
+  const container=document.getElementById('res-tabs');
+  container.innerHTML=tabs.map((t,i)=>`<button class="tab${i===0?' on':''}" style="${i===0?`--tab-col:var(${colorVar});--tab-bg:color-mix(in srgb,var(${colorVar}) 12%,transparent)`:''}" onclick="switchTab('${t.id}',this,'${colorVar}')">${t.label}</button>`).join('');
+}
+
+function switchTab(id, btn, colorVar){
+  document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('on');t.style.cssText='';});
+  btn.classList.add('on');
+  const cv=colorVar||currentTabColor;
+  btn.style.setProperty('--tab-col',`var(${cv})`);
+  btn.style.setProperty('--tab-bg',`color-mix(in srgb,var(${cv}) 12%,transparent)`);
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pane-'+id).classList.add('on');
+}
+
+function setPanes(panes){
+  const container=document.getElementById('res-panes');
+  container.innerHTML=panes.map((p,i)=>`<div class="pane${i===0?' on':''}" id="pane-${p.id}">${p.html}</div>`).join('');
+}
+
+// ── COPY ──
+function copyResults(){
+  const text=document.getElementById('res-panes').innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.querySelector('.res-actions .btn-sm:last-child');
+    const orig=b.textContent; b.textContent='✅ Copié !';
+    setTimeout(()=>b.textContent=orig,2000);
+  });
+}
+</script>
+</body>
+</html>
