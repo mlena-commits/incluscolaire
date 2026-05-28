@@ -1,6 +1,20 @@
-const { getStore } = require('@netlify/blobs');
-
 const DAILY_LIMIT = 20;
+
+// Persiste entre les appels à la même instance (warm), se remet à zéro sur cold start
+const ipCounts = new Map();
+
+function checkRateLimit(ip) {
+  const today = new Date().toISOString().slice(0, 10);
+  const record = ipCounts.get(ip) || { date: today, count: 0 };
+  if (record.date !== today) {
+    record.date = today;
+    record.count = 0;
+  }
+  if (record.count >= DAILY_LIMIT) return false;
+  record.count++;
+  ipCounts.set(ip, record);
+  return true;
+}
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -10,18 +24,8 @@ exports.handler = async (event) => {
   try {
     // ── RATE LIMITING ──
     const ip = (event.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-    const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
-    const store = getStore('rate-limits');
-    const raw = await store.get(ip);
-    const record = raw ? JSON.parse(raw) : { date: today, count: 0 };
-
-    if (record.date !== today) {
-      record.date = today;
-      record.count = 0;
-    }
-
-    if (record.count >= DAILY_LIMIT) {
+    if (!checkRateLimit(ip)) {
       return {
         statusCode: 429,
         headers: { 'Content-Type': 'application/json' },
@@ -30,9 +34,6 @@ exports.handler = async (event) => {
         })
       };
     }
-
-    record.count++;
-    await store.set(ip, JSON.stringify(record));
 
     // ── PROXY VERS ANTHROPIC ──
     const apiKey = process.env.ANTHROPIC_API_KEY;

@@ -1,7 +1,4 @@
 {
   "name": "incluscolaire",
-  "version": "1.0.0",
-  "dependencies": {
-    "@netlify/blobs": "^8.0.0"
-  }
+  "version": "1.0.0"
 }
