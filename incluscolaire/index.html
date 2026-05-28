@@ -540,10 +540,11 @@ async function callAPI(system, userText, imgMod){
       {type:'text',text:userText}
     ]
   }];
+  const maxTokens=imgMod==='allophones'?6000:4000;
   const resp=await fetch('/api/claude',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,system,messages})
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens,system,messages})
   });
   const data=await resp.json();
   if(!resp.ok || data.error) throw new Error((data.error&&data.error.message)||`Erreur serveur (${resp.status})`);
