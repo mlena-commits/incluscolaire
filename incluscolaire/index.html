@@ -549,6 +549,7 @@ async function callAPI(system, userText, imgMod){
   const data=await resp.json();
   if(!resp.ok || data.error) throw new Error((data.error&&data.error.message)||`Erreur serveur (${resp.status})`);
   const text=data.content.map(b=>b.text||'').join('');
+  console.log('[callAPI] réponse brute:', text);
   return JSON.parse(text.replace(/```json|```/g,'').trim());
 }
 
@@ -561,6 +562,7 @@ async function callAPIText(system, userText){
   const data=await resp.json();
   if(!resp.ok||data.error) throw new Error((data.error&&data.error.message)||`Erreur serveur (${resp.status})`);
   const text=data.content.map(b=>b.text||'').join('');
+  console.log('[callAPIText] réponse brute:', text);
   return JSON.parse(text.replace(/```json|```/g,'').trim());
 }
 
