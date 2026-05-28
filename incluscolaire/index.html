@@ -626,34 +626,47 @@ async function runAllophones(){
   const niv=document.getElementById('a-niveau').value;
   const cecrl=document.getElementById('a-cecrl').value;
   const lng=document.getElementById('a-langue').value;
-  const supports=[...document.querySelectorAll('#a-supports input:checked')].map(i=>i.value).join(', ');
   if(!validate([[disc,'Choisissez une discipline.'],[niv,'Choisissez un niveau.'],[cecrl,'Choisissez un niveau CECRL.']],'err-allophones')) return;
 
   setBtnState('allophones',true);
-  showLoading('Adaptation de l\'activité pour l\'élève allophone…');
+  showLoading('Adaptation (1/2) — Consignes et lexique…');
 
-  const sys=`Tu es un enseignant spécialisé en FLE/FLS et inclusion linguistique (CECRL, CASNAV/Éduscol, circulaire 2012-141).
+  const ctx=`Discipline : ${disc}, classe : ${niv}, niveau CECRL : ${cecrl}, langue maternelle : ${lng}.`;
+  const cecrlDesc=cecrl==='A1'?'mots isolés et phrases très simples':cecrl==='A2'?'phrases courtes et situations familières':'textes simples et cohérents';
+  const lexiqueInstr=lng!=='non précisée'?`Un lexique disciplinaire bilingue français ↔ ${lng} avec exemples en français`:'Un lexique disciplinaire simplifié en français';
+
+  // ── APPEL 1 : activité adaptée + lexique ──
+  const sys1=`Tu es un enseignant spécialisé en FLE/FLS et inclusion linguistique (CECRL, CASNAV/Éduscol, circulaire 2012-141).
 Réponds UNIQUEMENT en JSON valide sans markdown.
-Format : {
-  "activite_adaptee": {"consignes": ["..."], "etapes": ["..."]},
-  "lexique": [{"fr":"","traduction":"","exemple":""}],
-  "phrases_modeles": ["..."],
-  "visuels": ["..."],
-  "modalites": ["..."]
-}`;
+Format : {"activite_adaptee":{"consignes":["..."],"etapes":["..."]},"lexique":[{"fr":"","traduction":"","exemple":""}]}`;
 
-  const user=`Discipline : ${disc}, classe : ${niv}, niveau CECRL : ${cecrl}, langue maternelle : ${lng}.
-Supports souhaités : ${supports}.
-Adapte l'activité visible dans l'image pour un EANA en :
-- Calibrant la langue sur le niveau ${cecrl} (${cecrl==='A1'?'mots isolés et phrases très simples':cecrl==='A2'?'phrases courtes et situations familières':'textes simples et cohérents'})
-- Produisant des consignes courtes et explicites avec exemples
-- ${lng!=='non précisée'?`Un lexique disciplinaire bilingue français ↔ ${lng} avec exemples en français`:'Un lexique disciplinaire simplifié en français'}
-- Des phrases modèles à trous pour structurer les réponses
-- Des suggestions de visuels à créer ou trouver
-- Des modalités de travail favorisant l'interaction avec les pairs
+  const user1=`${ctx}
+Adapte l'activité visible dans l'image pour un EANA :
+- Langue calibrée sur le niveau ${cecrl} (${cecrlDesc})
+- Consignes courtes et explicites avec exemples
+- ${lexiqueInstr}
 Conserver l'objectif d'apprentissage disciplinaire de l'activité originale.`;
 
-  const d=await callAPI(sys,user,'allophones');
+  const d1=await callAPI(sys1,user1,'allophones');
+
+  // ── APPEL 2 : phrases modèles + visuels + modalités ──
+  const loadingTitle=document.querySelector('#res-panes .loading strong');
+  if(loadingTitle) loadingTitle.textContent='Adaptation (2/2) — Phrases modèles et visuels…';
+
+  const sys2=`Tu es un enseignant spécialisé en FLE/FLS et inclusion linguistique (CECRL, CASNAV/Éduscol, circulaire 2012-141).
+Réponds UNIQUEMENT en JSON valide sans markdown.
+Format : {"phrases_modeles":["..."],"visuels":["..."],"modalites":["..."]}`;
+
+  const user2=`${ctx}
+Pour la même activité visible dans l'image, génère :
+- Des phrases modèles à trous adaptées au niveau ${cecrl} (${cecrlDesc}) pour structurer les réponses
+- Des suggestions de visuels à créer ou trouver pour accompagner l'activité
+- Des modalités de travail favorisant l'interaction avec les pairs`;
+
+  const d2=await callAPI(sys2,user2,'allophones');
+
+  // ── FUSION ──
+  const d={...d1,...d2};
   document.getElementById('res-title').textContent='🌍 Support multimodal — Allophones';
 
   const tabs=[{id:'activite',label:'📋 Activité adaptée'},{id:'lexique',label:'📚 Lexique bilingue'},{id:'modeles',label:'📝 Phrases modèles'},{id:'visuels',label:'🖼️ Visuels & modalités'}];
