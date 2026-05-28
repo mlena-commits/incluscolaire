@@ -552,6 +552,18 @@ async function callAPI(system, userText, imgMod){
   return JSON.parse(text.replace(/```json|```/g,'').trim());
 }
 
+async function callAPIText(system, userText){
+  const resp=await fetch('/api/claude',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:3000,system,messages:[{role:'user',content:[{type:'text',text:userText}]}]})
+  });
+  const data=await resp.json();
+  if(!resp.ok||data.error) throw new Error((data.error&&data.error.message)||`Erreur serveur (${resp.status})`);
+  const text=data.content.map(b=>b.text||'').join('');
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
+}
+
 // ═══════════════════════════════════════
 // RUN DISPATCHER
 // ═══════════════════════════════════════
@@ -649,7 +661,7 @@ Conserver l'objectif d'apprentissage disciplinaire de l'activité originale.`;
 
   const d1=await callAPI(sys1,user1,'allophones');
 
-  // ── APPEL 2 : phrases modèles + visuels + modalités ──
+  // ── APPEL 2 : phrases modèles + visuels + modalités (texte seul, sans image) ──
   const loadingTitle=document.querySelector('#res-panes .loading strong');
   if(loadingTitle) loadingTitle.textContent='Adaptation (2/2) — Phrases modèles et visuels…';
 
@@ -657,13 +669,15 @@ Conserver l'objectif d'apprentissage disciplinaire de l'activité originale.`;
 Réponds UNIQUEMENT en JSON valide sans markdown.
 Format : {"phrases_modeles":["..."],"visuels":["..."],"modalites":["..."]}`;
 
+  const consignesResumees=(d1.activite_adaptee?.consignes||[]).slice(0,3).join(' / ');
   const user2=`${ctx}
-Pour la même activité visible dans l'image, génère :
+L'activité a été adaptée avec ces consignes : ${consignesResumees}
+Génère maintenant :
 - Des phrases modèles à trous adaptées au niveau ${cecrl} (${cecrlDesc}) pour structurer les réponses
 - Des suggestions de visuels à créer ou trouver pour accompagner l'activité
 - Des modalités de travail favorisant l'interaction avec les pairs`;
 
-  const d2=await callAPI(sys2,user2,'allophones');
+  const d2=await callAPIText(sys2,user2);
 
   // ── FUSION ──
   const d={...d1,...d2};
