@@ -546,7 +546,7 @@ async function callAPI(system, userText, imgMod){
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system,messages})
   });
   const data=await resp.json();
-  if(data.error) throw new Error(data.error.message);
+  if(!resp.ok || data.error) throw new Error((data.error&&data.error.message)||`Erreur serveur (${resp.status})`);
   const text=data.content.map(b=>b.text||'').join('');
   return JSON.parse(text.replace(/```json|```/g,'').trim());
 }
