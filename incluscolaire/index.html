@@ -364,16 +364,8 @@ label.lbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
       <div class="field"><label class="lbl">Niveau de classe</label><select id="a-niveau"><option value="">Choisir…</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option><option>6e</option><option>5e</option><option>4e</option><option>3e</option><option>2nde</option><option>1re</option><option>Terminale</option></select></div>
       <div class="field"><label class="lbl">Niveau CECRL</label><select id="a-cecrl"><option value="">Choisir…</option><option value="A1">A1 — Débutant</option><option value="A2">A2 — Élémentaire</option><option value="B1">B1 — Intermédiaire</option></select></div>
     </div>
-    <div class="form-grid fg-2">
+    <div class="form-grid fg-1">
       <div class="field"><label class="lbl">Langue maternelle</label><select id="a-langue"><option value="non précisée">Non précisée</option><option value="arabe">Arabe</option><option value="turc">Turc</option><option value="portugais">Portugais</option><option value="espagnol">Espagnol</option><option value="anglais">Anglais</option><option value="tamoul">Tamoul</option><option value="wolof">Wolof</option><option value="chinois">Chinois</option><option value="dari">Dari</option><option value="ukrainien">Ukrainien</option><option value="roumain">Roumain</option></select></div>
-      <div class="field"><label class="lbl">Supports souhaités</label>
-        <div class="checks-group" id="a-supports">
-          <label class="chk-label checked"><input type="checkbox" value="lexique bilingue" checked onchange="toggleChk(this)">📚 Lexique bilingue</label>
-          <label class="chk-label checked"><input type="checkbox" value="phrases modèles à trous" checked onchange="toggleChk(this)">📝 Phrases modèles</label>
-          <label class="chk-label checked"><input type="checkbox" value="suggestions visuelles" checked onchange="toggleChk(this)">🖼️ Visuels</label>
-          <label class="chk-label checked"><input type="checkbox" value="modalités de travail" checked onchange="toggleChk(this)">👥 Modalités</label>
-        </div>
-      </div>
     </div>
     <div class="upload-zone" id="uz-allophones">
       <input type="file" accept="image/*" onchange="handleImg(this,'allophones')">
@@ -655,82 +647,41 @@ async function runAllophones(){
   if(!validate([[disc,'Choisissez une discipline.'],[niv,'Choisissez un niveau.'],[cecrl,'Choisissez un niveau CECRL.']],'err-allophones')) return;
 
   setBtnState('allophones',true);
-  showLoading('Adaptation (1/2) — Consignes et lexique…');
+  showLoading('Adaptation de l\'activité pour l\'élève allophone…');
 
-  const ctx=`Discipline : ${disc}, classe : ${niv}, niveau CECRL : ${cecrl}, langue maternelle : ${lng}.`;
   const cecrlDesc=cecrl==='A1'?'mots isolés et phrases très simples':cecrl==='A2'?'phrases courtes et situations familières':'textes simples et cohérents';
-  const lexiqueInstr=lng!=='non précisée'?`Un lexique disciplinaire bilingue français ↔ ${lng} avec exemples en français`:'Un lexique disciplinaire simplifié en français';
+  const lexiqueInstr=lng!=='non précisée'?`lexique bilingue français ↔ ${lng}`:'lexique simplifié en français';
 
-  // ── APPEL 1 : activité adaptée + lexique ──
-  const sys1=`Tu es un enseignant spécialisé en FLE/FLS et inclusion linguistique (CECRL, CASNAV/Éduscol, circulaire 2012-141).
+  const sys=`Tu es un enseignant spécialisé en FLE/FLS (CECRL, CASNAV).
 Réponds UNIQUEMENT en JSON valide sans markdown.
 Format : {"activite_adaptee":{"consignes":["..."],"etapes":["..."]},"lexique":[{"fr":"","traduction":"","exemple":""}]}`;
 
-  const user1=`${ctx}
-Adapte l'activité visible dans l'image pour un EANA :
-- Langue calibrée sur le niveau ${cecrl} (${cecrlDesc})
-- Consignes courtes et explicites avec exemples
-- ${lexiqueInstr}
-Conserver l'objectif d'apprentissage disciplinaire de l'activité originale.`;
+  const user=`Discipline : ${disc}, classe : ${niv}, niveau CECRL : ${cecrl}, langue maternelle : ${lng}.
+Adapte l'activité visible dans l'image pour un EANA niveau ${cecrl} (${cecrlDesc}) :
+- 2 à 3 consignes courtes avec exemple
+- Étapes intermédiaires si nécessaire
+- ${lexiqueInstr} (8 mots max)
+Conserver l'objectif disciplinaire de l'activité originale.`;
 
-  const d1=await callAPI(sys1,user1,'allophones');
-
-  // ── APPEL 2 : phrases modèles + visuels + modalités (texte seul, sans image) ──
-  const loadingTitle=document.querySelector('#res-panes .loading strong');
-  if(loadingTitle) loadingTitle.textContent='Adaptation (2/2) — Phrases modèles et visuels…';
-
-  const sys2=`Tu es un enseignant spécialisé en FLE/FLS et inclusion linguistique (CECRL, CASNAV/Éduscol, circulaire 2012-141).
-Réponds UNIQUEMENT en JSON valide sans markdown.
-Format : {"phrases_modeles":["..."],"visuels":["..."],"modalites":["..."]}`;
-
-  const consignesResumees=(d1.activite_adaptee?.consignes||[]).slice(0,3).join(' / ');
-  const user2=`${ctx}
-L'activité a été adaptée avec ces consignes : ${consignesResumees}
-Génère maintenant :
-- Des phrases modèles à trous adaptées au niveau ${cecrl} (${cecrlDesc}) pour structurer les réponses
-- Des suggestions de visuels à créer ou trouver pour accompagner l'activité
-- Des modalités de travail favorisant l'interaction avec les pairs`;
-
-  const d2=await callAPIText(sys2,user2);
-
-  // ── FUSION ──
-  const d={...d1,...d2};
+  const d=await callAPI(sys,user,'allophones');
   document.getElementById('res-title').textContent='🌍 Support multimodal — Allophones';
 
-  const tabs=[{id:'activite',label:'📋 Activité adaptée'},{id:'lexique',label:'📚 Lexique bilingue'},{id:'modeles',label:'📝 Phrases modèles'},{id:'visuels',label:'🖼️ Visuels & modalités'}];
-  renderTabs(tabs,'--allophones-m');
+  renderTabs([{id:'activite',label:'📋 Activité adaptée'},{id:'lexique',label:'📚 Lexique bilingue'}],'--allophones-m');
 
-  // Activité
   let act='<div class="section-lbl">Consignes simplifiées</div>';
   (d.activite_adaptee?.consignes||[]).forEach((c,i)=>{act+=`<div class="card-block"><h3>Consigne ${i+1}</h3><p>${c}</p></div>`;});
   if((d.activite_adaptee?.etapes||[]).length){
-    act+='<div class="section-lbl" style="margin-top:16px">Étapes intermédiaires</div>';
-    act+='<div class="card-block"><ul>';
+    act+='<div class="section-lbl" style="margin-top:16px">Étapes intermédiaires</div><div class="card-block"><ul>';
     d.activite_adaptee.etapes.forEach(e=>{act+=`<li>${e}</li>`;});
     act+='</ul></div>';
   }
 
-  // Lexique
   const hasTr=lng!=='non précisée';
-  let lx=`<table class="data-table"><thead><tr><th>Mot français</th>${hasTr?`<th>En ${lng}</th>`:''}<th>Exemple en français</th></tr></thead><tbody>`;
+  let lx=`<table class="data-table"><thead><tr><th>Mot français</th>${hasTr?`<th>En ${lng}</th>`:''}<th>Exemple</th></tr></thead><tbody>`;
   (d.lexique||[]).forEach(r=>{lx+=`<tr><td class="word-em">${r.fr}</td>${hasTr?`<td class="transl">${r.traduction}</td>`:''}<td class="transl">${r.exemple}</td></tr>`;});
   lx+='</tbody></table>';
 
-  // Phrases modèles
-  let pm='<div class="section-lbl">Phrases à compléter</div>';
-  (d.phrases_modeles||[]).forEach(p=>{pm+=`<div class="card-block"><p>${p}</p></div>`;});
-
-  // Visuels & modalités
-  let vm='<div class="section-lbl">Suggestions de supports visuels</div><div class="card-block"><ul>';
-  (d.visuels||[]).forEach(v=>{vm+=`<li>${v}</li>`;});
-  vm+='</ul></div>';
-  if((d.modalites||[]).length){
-    vm+='<div class="section-lbl" style="margin-top:14px">Modalités de travail recommandées</div><div class="card-block"><ul>';
-    d.modalites.forEach(m=>{vm+=`<li>${m}</li>`;});
-    vm+='</ul></div>';
-  }
-
-  setPanes([{id:'activite',html:act},{id:'lexique',html:lx},{id:'modeles',html:pm},{id:'visuels',html:vm}]);
+  setPanes([{id:'activite',html:act},{id:'lexique',html:lx}]);
   setBtnState('allophones',false);
 }
 
